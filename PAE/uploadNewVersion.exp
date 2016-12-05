@@ -1,0 +1,21 @@
+#!/usr/bin/expect
+set oldVersion [lindex $argv 0];
+set newVersion [lindex $argv 1];
+spawn "./generateCommand.sh" $oldVersion $newVersion
+expect eof
+set command $expect_out(buffer)
+puts $command
+spawn geth --testnet console 2> /dev/null
+
+expect "> "
+send $command
+sleep 2
+expect "> "
+send "miner.start(1); \n"
+expect "> "
+send "admin.sleepBlocks(1); \n"
+expect "true"
+send "miner.stop(); \n"
+
+
+interact
